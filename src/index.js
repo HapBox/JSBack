@@ -3,14 +3,13 @@ const express = require('express');
 const http = require('http');
 const cors = require('cors');
 const app = express();
-const ToDo = require('./dataBase/models/ToDo.model');
 const todoRouter = require('./contollers/todo.controller');
 
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-initDB();
+// initDB();
 app.use('/todo', todoRouter);
 
 app.use((req, res, next) => {
