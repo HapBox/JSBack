@@ -24,9 +24,7 @@ async function getById(req, res, next) {
 }
 
 async function createTodo(req, res, next) {
-    let title = req.body.title;
-    let description = req.body.description;
-    ToDo.create({ title: title, description: description});
+    ToDo.create({ title: req.body.title, description: req.body.description});
     res.status(200).json({Info: "Created"});
 }
 
