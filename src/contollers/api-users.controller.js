@@ -9,13 +9,13 @@ const router = new Router();
 function initRoutes() {
   router.get("/:id", asyncHandler(requireToken), asyncHandler(getUser));
   router.patch("/:id", asyncHandler(requireToken), asyncHandler(updateUser));
-  router.post("/logout", asyncHandler(requireToken), asyncHandler(exitUser));
+  router.post("/logout", asyncHandler(requireToken), asyncHandler(logoutUser));
 }
 
 async function getUser(req, res, next) {
   let token = await Token.findByPK({
     where: {
-      value: req.body.token
+      value: req.headers.token
     }
   });
   let user = await User.findOne(token.userID);
@@ -25,7 +25,7 @@ async function getUser(req, res, next) {
 async function updateUser(req, res, next) {
   let token = await Token.findOne({
     where: {
-      value: req.body.token
+      value: req.headers.token
     }
   });
   await User.update(req.body, {
@@ -37,10 +37,10 @@ async function updateUser(req, res, next) {
   res.status(200).json(updated);
 }
 
-async function exitUser(req, res, next) {
+async function logoutUser(req, res, next) {
   await Token.destroy({
     where: {
-      value: req.body.token
+      value: req.headers.token
     }
   });
   res.status(200).json({message: "See you soon!"})
