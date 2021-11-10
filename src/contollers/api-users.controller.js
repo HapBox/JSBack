@@ -1,49 +1,33 @@
 const { Router } = require("express");
-const ErrorResponse = require("../classes/error-response");
-const Token = require("../dataBase/models/Token.model");
 const User = require("../dataBase/models/User.model");
 const { asyncHandler, requireToken } = require("../middlewares/middlewares");
 
 const router = new Router();
 
 function initRoutes() {
-  router.get("/:id", asyncHandler(requireToken), asyncHandler(getUser));
-  router.patch("/:id", asyncHandler(requireToken), asyncHandler(updateUser));
+  router.get("/me", asyncHandler(requireToken), asyncHandler(getUser));
+  router.patch("/me", asyncHandler(requireToken), asyncHandler(updateUser));
   router.post("/logout", asyncHandler(requireToken), asyncHandler(logoutUser));
 }
 
 async function getUser(req, res, next) {
-  let token = await Token.findByPK({
-    where: {
-      value: req.headers.token
-    }
-  });
-  let user = await User.findOne(token.userID);
+  const user = await User.findByPk(req.token.userID);
   res.status(200).json(user);
 }
 
 async function updateUser(req, res, next) {
-  let token = await Token.findOne({
-    where: {
-      value: req.headers.token
-    }
-  });
   await User.update(req.body, {
     where: {
-      id: token.userID,
+      id: req.token.userID,
     },
   });
-  let updated = await User.findByPk(token.value);
+  let updated = await User.findByPk(req.token.userID);
   res.status(200).json(updated);
 }
 
 async function logoutUser(req, res, next) {
-  await Token.destroy({
-    where: {
-      value: req.headers.token
-    }
-  });
-  res.status(200).json({message: "See you soon!"})
+  await req.token.destroy();
+  res.status(200).json({ message: "See you soon!" });
 }
 
 initRoutes();

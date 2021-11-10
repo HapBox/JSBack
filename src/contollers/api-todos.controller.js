@@ -19,7 +19,11 @@ function initRoutes() {
 }
 
 async function getAll(req, res, next) {
-  const todos = await ToDo.findAll();
+  const todos = await ToDo.findAll({
+    where: {
+      userID: req.token.userID
+    }
+  });
   res.status(200).json(todos);
 }
 
@@ -30,8 +34,7 @@ async function getById(req, res, next) {
 }
 
 async function createTodo(req, res, next) {
-  req.body.userID = req.userID;
-  const data = await ToDo.create(req.body);
+  const data = await ToDo.create(req.body, req.token.userID);
   res.status(200).json(data);
 }
 
@@ -50,8 +53,9 @@ async function updateTodo(req, res, next) {
 
 async function deleteAll(req, res, next) {
   await ToDo.destroy({
-    truncate: true,
-    restartIdentity: true,
+    where: {
+      userID: req.body.userID,
+    }
   });
   res.status(200).json({ message: "Deleted all todos" });
 }

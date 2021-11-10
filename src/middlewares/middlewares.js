@@ -1,4 +1,5 @@
 const ErrorResponse = require("../classes/error-response");
+const Token = require("../dataBase/models/Token.model");
 
 const asyncHandler = (fn) => (req, res, next) => {
   Promise.resolve(fn(req, res, next)).catch(next);
@@ -17,13 +18,13 @@ const notFound = (req, _res, next) => {
 };
 
 const requireToken = async (req, _res, next) => {
-  let token = await Token.findOne({
+  const token = await Token.findOne({
     where: {
-      value: req.headers.token,
+      value: req.header('x-access-token'),
     },
   });
   if (!token) throw new ErrorResponse("Invalid token", 403);
-  req.userID = token.userID;
+  req.token = token;
   next();
 };
 

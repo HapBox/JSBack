@@ -3,7 +3,7 @@ const { nanoid } = require("nanoid");
 const ErrorResponse = require("../classes/error-response");
 const Token = require("../dataBase/models/Token.model");
 const User = require("../dataBase/models/User.model");
-const {Op} = require('sequelize');
+const { Op } = require("sequelize");
 const { asyncHandler, errorHandler } = require("../middlewares/middlewares");
 
 const router = new Router();
@@ -14,7 +14,7 @@ function initRoutes() {
 }
 
 async function registration(req, res, next) {
-  let user = await User.findOne({
+  const user = await User.findOne({
     where: {
       [Op.or]: {
         login: req.body.login,
@@ -22,7 +22,7 @@ async function registration(req, res, next) {
       },
     },
   });
-  if (user) throw new ErrorResponse("User name or email is in system", 400);
+  if (user) throw new ErrorResponse("Login or email already in system", 400);
   const data = await User.create(req.body);
   res.status(200).json(data);
 }

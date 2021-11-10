@@ -4,7 +4,8 @@ const http = require("http");
 const cors = require("cors");
 const app = express();
 const todoRouter = require("./contollers/api-todos.controller");
-const authRouter = require("./contollers/api-auth.controller")
+const authRouter = require("./contollers/api-auth.controller");
+const userRouter = require("./contollers/api-users.controller");
 const { notFound, errorHandler, asyncHandler } = require("./middlewares/middlewares");
 
 app.use(cors());
@@ -14,6 +15,7 @@ app.use(express.json());
 initDB();
 app.use("/todo", todoRouter);
 app.use('/auth', authRouter);
+app.use('/user', userRouter);
 
 app.use((req, res, next) => {
   console.log("URL = ", req.url);
