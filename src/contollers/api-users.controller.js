@@ -10,21 +10,24 @@ function initRoutes() {
   router.post("/logout", asyncHandler(requireToken), asyncHandler(logoutUser));
 }
 
+//вывод информации о пользователе
 async function getUser(req, res, next) {
-  const user = await User.findByPk(req.token.userID);
+  const user = await User.findByPk(req.token.userId);
   res.status(200).json(user);
 }
 
+//обновление данных пользователя
 async function updateUser(req, res, next) {
-  await User.update(req.body, {
+  const data = await User.update(req.body, {
     where: {
-      id: req.token.userID,
+      id: req.token.userId,
     },
+    returning: true,
   });
-  let updated = await User.findByPk(req.token.userID);
-  res.status(200).json(updated);
+  res.status(200).json(data);
 }
 
+//выход из аккаунта пользователя и уничтожение токена
 async function logoutUser(req, res, next) {
   await req.token.destroy();
   res.status(200).json({ message: "See you soon!" });

@@ -1,4 +1,4 @@
-const { sequelize, Sequelize, initDB } = require("./dataBase/index");
+const { initDB } = require("./dataBase/index");
 const express = require("express");
 const http = require("http");
 const cors = require("cors");
@@ -6,16 +6,13 @@ const app = express();
 const todoRouter = require("./contollers/api-todos.controller");
 const authRouter = require("./contollers/api-auth.controller");
 const userRouter = require("./contollers/api-users.controller");
-const { notFound, errorHandler, asyncHandler } = require("./middlewares/middlewares");
+const { notFound, errorHandler } = require("./middlewares/middlewares");
+
+initDB();
 
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
-initDB();
-app.use("/todo", todoRouter);
-app.use('/auth', authRouter);
-app.use('/user', userRouter);
 
 app.use((req, res, next) => {
   console.log("URL = ", req.url);
@@ -28,6 +25,10 @@ app.use((req, res, next) => {
 
   next();
 });
+
+app.use("/todo", todoRouter);
+app.use('/auth', authRouter);
+app.use('/user', userRouter);
 
 app.use(notFound);
 app.use(errorHandler);

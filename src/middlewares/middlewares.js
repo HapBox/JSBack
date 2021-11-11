@@ -17,13 +17,17 @@ const notFound = (req, _res, next) => {
   next(new ErrorResponse(`Not found - ${req.originalUrl}`, 404));
 };
 
+//проверка токена
 const requireToken = async (req, _res, next) => {
+  if (!req.header("x-access-token"))
+    throw new ErrorResponse("Token not found", 400);
   const token = await Token.findOne({
     where: {
-      value: req.header('x-access-token'),
+      value: req.header("x-access-token"),
     },
   });
   if (!token) throw new ErrorResponse("Invalid token", 403);
+  //передача объекта токена в request
   req.token = token;
   next();
 };

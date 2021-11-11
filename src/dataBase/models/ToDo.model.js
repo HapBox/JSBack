@@ -1,6 +1,5 @@
 const { sequelize } = require("..");
 const { Sequelize } = require("sequelize");
-const User = require("./User.model");
 
 class ToDo extends Sequelize.Model {}
 
@@ -17,6 +16,7 @@ ToDo.init(
     },
     description: {
       type: Sequelize.STRING,
+      defaultValue: "",
     },
     isDone: {
       type: Sequelize.BOOLEAN,
@@ -28,14 +28,10 @@ ToDo.init(
     },
     priority: {
       type: Sequelize.INTEGER,
+      defaultValue: 0,
     },
   },
   { sequelize: sequelize, modelName: "todo" }
 );
-
-ToDo.belongsTo(User, {
-  as: "User",
-  foreignKey: "UserID",
-});
 
 module.exports = ToDo;

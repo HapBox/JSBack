@@ -4,7 +4,7 @@ const ErrorResponse = require("../classes/error-response");
 const Token = require("../dataBase/models/Token.model");
 const User = require("../dataBase/models/User.model");
 const { Op } = require("sequelize");
-const { asyncHandler, errorHandler } = require("../middlewares/middlewares");
+const { asyncHandler } = require("../middlewares/middlewares");
 
 const router = new Router();
 
@@ -13,6 +13,7 @@ function initRoutes() {
   router.post("/login", asyncHandler(login));
 }
 
+//функция регистрации пользователя
 async function registration(req, res, next) {
   const user = await User.findOne({
     where: {
@@ -27,6 +28,7 @@ async function registration(req, res, next) {
   res.status(200).json(data);
 }
 
+//функция авторизации пользователя
 async function login(req, res, next) {
   const user = await User.findOne({
     where: {
@@ -35,12 +37,13 @@ async function login(req, res, next) {
     },
   });
   if (!user) throw new ErrorResponse("Wrong login or password", 400);
+  //создание токена
   const token = await Token.create({
-    userID: user.id,
+    userId: user.id,
     value: nanoid(128),
   });
   res.status(200).json({
-    accessToken: token.value,
+    accessToken: token,
   });
 }
 

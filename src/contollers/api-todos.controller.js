@@ -1,11 +1,7 @@
 const { Router } = require("express");
 const ErrorResponse = require("../classes/error-response");
 const ToDo = require("../dataBase/models/ToDo.model");
-const {
-  asyncHandler,
-  requireToken,
-  notFound,
-} = require("../middlewares/middlewares");
+const { asyncHandler, requireToken } = require("../middlewares/middlewares");
 
 const router = new Router();
 
@@ -18,57 +14,77 @@ function initRoutes() {
   router.delete("/:id", asyncHandler(requireToken), asyncHandler(deleteById));
 }
 
+//Получение всех туду с БД по пользователю
 async function getAll(req, res, next) {
   const todos = await ToDo.findAll({
     where: {
-      userID: req.token.userID
-    }
+      userId: req.token.userId,
+    },
   });
   res.status(200).json(todos);
 }
 
+//Получение туду с определенным id по пользователю
 async function getById(req, res, next) {
-  const todo = await ToDo.findByPk(req.params.id);
+  const todo = await ToDo.findOne({
+    where: {
+      id: req.params.id,
+      userId: req.token.userId,
+    },
+  });
   if (!todo) throw new ErrorResponse("Not found todo", 404);
   res.status(200).json(todo);
 }
 
+//Создание тудушки пользователя
 async function createTodo(req, res, next) {
-  const data = await ToDo.create(req.body, req.token.userID);
+  const userId = req.token.userId;
+  console.log(req.token);
+  const data = await ToDo.create({
+    ...req.body,
+    userId,
+  });
   res.status(200).json(data);
 }
 
+//обновление тудушки по его id
 async function updateTodo(req, res, next) {
-  const todo = await ToDo.findByPk(req.params.id);
-  if (!todo) throw new ErrorResponse("Not found todo", 404);
-
-  await ToDo.update(req.body, {
-    where: {
-      id: req.params.id,
-    },
-  });
-  let updated = await ToDo.findByPk(req.params.id);
-  res.status(200).json({ message: "Updated", updated: updated });
+  let data;
+  try {
+    data = await ToDo.update(req.body, {
+      where: {
+        id: req.params.id,
+        userId: req.token.userId,
+      },
+      returning: true,
+    });
+  } catch (error) {
+    throw new ErrorResponse("Invalid data", 400);
+  }
+  res.status(200).json({ message: "Updated", updated: data });
 }
 
+//удаление всех туду пользователя
 async function deleteAll(req, res, next) {
   await ToDo.destroy({
     where: {
-      userID: req.body.userID,
-    }
+      userId: req.body.userId,
+    },
   });
   res.status(200).json({ message: "Deleted all todos" });
 }
 
+//удаление туду по id
 async function deleteById(req, res, next) {
-  let todo = await ToDo.findByPk(req.params.id);
-  if (!todo) throw new ErrorResponse("Not found todo", 404);
-
-  await ToDo.destroy({
+  let todo = await ToDo.findOne({
     where: {
       id: req.params.id,
+      userId: req.token.userId,
     },
+    returning: true,
   });
+  if (!todo) throw new ErrorResponse("Not found todo", 404);
+  await todo.destroy();
   res.status(200).json({ message: "Deleted" });
 }
 
