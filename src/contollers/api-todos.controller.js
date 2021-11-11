@@ -43,7 +43,6 @@ async function getById(req, res, next) {
 //Создание тудушки пользователя
 async function createTodo(req, res, next) {
   const userId = req.token.userId;
-  console.log(req.token);
   const data = await ToDo.create({
     ...req.body,
     userId,
@@ -53,18 +52,13 @@ async function createTodo(req, res, next) {
 
 //обновление тудушки по его id
 async function updateTodo(req, res, next) {
-  let data;
-  try {
-    data = await ToDo.update(req.body, {
-      where: {
-        id: req.params.id,
-        userId: req.token.userId,
-      },
-      returning: true,
-    });
-  } catch (error) {
-    throw new ErrorResponse("Invalid data", 400);
-  }
+  let data = await ToDo.update(req.body, {
+    where: {
+      id: req.params.id,
+      userId: req.token.userId,
+    },
+    returning: true,
+  });
   res.status(200).json({ message: "Updated", updated: data });
 }
 
@@ -85,7 +79,6 @@ async function deleteById(req, res, next) {
       id: req.params.id,
       userId: req.token.userId,
     },
-    returning: true,
   });
   if (!todo) throw new ErrorResponse("Not found todo", 404);
   await todo.destroy();
@@ -93,26 +86,26 @@ async function deleteById(req, res, next) {
 }
 
 //Получение ссылки для просмотра туду другому человеку
-async function getLink(req, res, next){
+async function getLink(req, res, next) {
   let token = await ReadToken.create({
     value: nanoid(128),
     todoId: req.params.id,
   });
   let link = "localhost:3001/todo/" + req.params.id + "/" + token.value;
-  res.status(200).json({link: link});
+  res.status(200).json({ link });
 }
 
 //Открытие туду по ссылке
-async function getTodoByReadToken(req, res, next){
+async function getTodoByReadToken(req, res, next) {
   let token = await ReadToken.findOne({
     where: {
       value: req.params.readtoken,
-    }
+    },
   });
-  if(!token) throw new ErrorResponse("Wrong Token", 400);
-  let data = await ToDo.findByPk(req.params.id);
-  if(!data) throw new ErrorResponse("Wrong ToDo", 400);
-  res.status(200).json({data});
+  if (!token) throw new ErrorResponse("Wrong Token", 400);
+  let todo = await ToDo.findByPk(req.params.id);
+  if (!todo) throw new ErrorResponse("Wrong ToDo", 400);
+  res.status(200).json(todo);
 }
 
 initRoutes();
