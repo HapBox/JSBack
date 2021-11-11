@@ -1,5 +1,7 @@
 const { Router } = require("express");
+const { nanoid } = require("nanoid");
 const ErrorResponse = require("../classes/error-response");
+const ReadToken = require("../dataBase/models/ReadToken.model");
 const ToDo = require("../dataBase/models/ToDo.model");
 const { asyncHandler, requireToken } = require("../middlewares/middlewares");
 
@@ -8,6 +10,8 @@ const router = new Router();
 function initRoutes() {
   router.get("/", asyncHandler(requireToken), asyncHandler(getAll));
   router.get("/:id", asyncHandler(requireToken), asyncHandler(getById));
+  router.get("/:id/getlink", asyncHandler(requireToken), asyncHandler(getLink));
+  router.get("/:id/:readtoken", asyncHandler(getTodoByReadToken));
   router.post("/", asyncHandler(requireToken), asyncHandler(createTodo));
   router.patch("/:id", asyncHandler(requireToken), asyncHandler(updateTodo));
   router.delete("/", asyncHandler(requireToken), asyncHandler(deleteAll));
@@ -86,6 +90,29 @@ async function deleteById(req, res, next) {
   if (!todo) throw new ErrorResponse("Not found todo", 404);
   await todo.destroy();
   res.status(200).json({ message: "Deleted" });
+}
+
+//Получение ссылки для просмотра туду другому человеку
+async function getLink(req, res, next){
+  let token = await ReadToken.create({
+    value: nanoid(128),
+    todoId: req.params.id,
+  });
+  let link = "localhost:3001/todo/" + req.params.id + "/" + token.value;
+  res.status(200).json({link: link});
+}
+
+//Открытие туду по ссылке
+async function getTodoByReadToken(req, res, next){
+  let token = await ReadToken.findOne({
+    where: {
+      value: req.params.readtoken,
+    }
+  });
+  if(!token) throw new ErrorResponse("Wrong Token", 400);
+  let data = await ToDo.findByPk(req.params.id);
+  if(!data) throw new ErrorResponse("Wrong ToDo", 400);
+  res.status(200).json({data});
 }
 
 initRoutes();

@@ -1,9 +1,9 @@
 const { sequelize } = require("..");
 const { Sequelize } = require("sequelize");
 
-class Token extends Sequelize.Model {}
+class ReadToken extends Sequelize.Model {}
 
-Token.init(
+ReadToken.init(
   {
     id: {
       type: Sequelize.DataTypes.UUID,
@@ -15,7 +15,7 @@ Token.init(
       allowNull: false,
     },
   },
-  { sequelize: sequelize, modelName: "token" }
+  { sequelize: sequelize, modelName: "readtoken" }
 );
 
-module.exports = Token;
+module.exports = ReadToken;

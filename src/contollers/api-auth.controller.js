@@ -43,7 +43,7 @@ async function login(req, res, next) {
     value: nanoid(128),
   });
   res.status(200).json({
-    accessToken: token,
+    accessToken: token.value,
   });
 }
 
