@@ -3,6 +3,7 @@ const { nanoid } = require("nanoid");
 const ErrorResponse = require("../classes/error-response");
 const ReadToken = require("../dataBase/models/ReadToken.model");
 const ToDo = require("../dataBase/models/ToDo.model");
+const Comment = require("../dataBase/models/Comment.model");
 const { asyncHandler, requireToken } = require("../middlewares/middlewares");
 
 const router = new Router();
@@ -10,6 +11,11 @@ const router = new Router();
 function initRoutes() {
   router.get("/", asyncHandler(requireToken), asyncHandler(getAll));
   router.get("/:id", asyncHandler(requireToken), asyncHandler(getById));
+  router.post(
+    "/addcomment/:id",
+    asyncHandler(requireToken),
+    asyncHandler(createComment)
+  );
   router.get("/:id/getlink", asyncHandler(requireToken), asyncHandler(getLink));
   router.get("/:id/:readtoken", asyncHandler(getTodoByReadToken));
   router.post("/", asyncHandler(requireToken), asyncHandler(createTodo));
@@ -37,7 +43,12 @@ async function getById(req, res, next) {
     },
   });
   if (!todo) throw new ErrorResponse("Not found todo", 404);
-  res.status(200).json(todo);
+  const comments = await Comment.findAll({
+    where: {
+      todoId: todo.id,
+    },
+  });
+  res.status(200).json({todo, comments});
 }
 
 //Создание тудушки пользователя
@@ -106,6 +117,19 @@ async function getTodoByReadToken(req, res, next) {
   let todo = await ToDo.findByPk(req.params.id);
   if (!todo) throw new ErrorResponse("Wrong ToDo", 400);
   res.status(200).json(todo);
+}
+
+async function createComment(req, res, next) {
+  let todo = await ToDo.findByPk(req.params.id);
+  if (todo.userId !== req.token.userId)
+    throw new ErrorResponse("Wrong ToDo", 400);
+  let todoId = todo.id;
+  console.log(todoId);
+  let comment = await Comment.create({
+    ...req.body,
+    todoId,
+  });
+  res.status(200).json(comment);
 }
 
 initRoutes();

@@ -6,6 +6,7 @@ const app = express();
 const todoRouter = require("./contollers/api-todos.controller");
 const authRouter = require("./contollers/api-auth.controller");
 const userRouter = require("./contollers/api-users.controller");
+const commentRouter = require("./contollers/api-comments.controller");
 const { notFound, errorHandler } = require("./middlewares/middlewares");
 
 initDB();
@@ -29,6 +30,7 @@ app.use((req, res, next) => {
 app.use("/todo", todoRouter);
 app.use('/auth', authRouter);
 app.use('/user', userRouter);
+app.use('/comment', commentRouter);
 
 app.use(notFound);
 app.use(errorHandler);

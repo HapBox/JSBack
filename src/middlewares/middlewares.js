@@ -1,5 +1,7 @@
 const ErrorResponse = require("../classes/error-response");
+const ToDo = require("../dataBase/models/ToDo.model");
 const Token = require("../dataBase/models/Token.model");
+const Comment = require("../dataBase/models/Comment.model");
 
 const asyncHandler = (fn) => (req, res, next) => {
   Promise.resolve(fn(req, res, next)).catch(next);
@@ -32,6 +34,17 @@ const requireToken = async (req, _res, next) => {
   next();
 };
 
+const checkUser = async (req, res, next) => {
+  let comment = await Comment.findByPk(req.params.id);
+  if (!comment) throw new ErrorResponse("Comment not found", 404);
+  let todo = await ToDo.findByPk(comment.todoId);
+  if (!todo) throw new ErrorResponse("ToDo not found", 404);
+  if (todo.userId !== req.token.userId) throw new ErrorResponse("Wrong ToDo", 400);
+  req.todoId = todo.userId;
+  req.comment = comment;
+  next();
+}
+
 const errorHandler = (err, _req, res, _next) => {
   console.log("Ошибка", {
     message: err.message,
@@ -48,4 +61,5 @@ module.exports = {
   notFound,
   errorHandler,
   requireToken,
+  checkUser,
 };
