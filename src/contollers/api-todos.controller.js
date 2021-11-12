@@ -48,7 +48,8 @@ async function getById(req, res, next) {
       todoId: todo.id,
     },
   });
-  res.status(200).json({todo, comments});
+  if (!comments) res.status(200).json(todo);
+  else res.status(200).json({todo, comments});
 }
 
 //Создание тудушки пользователя
