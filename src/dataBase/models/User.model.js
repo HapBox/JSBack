@@ -4,6 +4,7 @@ const Token = require("./Token.model");
 const ToDo = require("./ToDo.model");
 const ReadToken = require("./ReadToken.model");
 const Comment = require("./Comment.model");
+const MailToken = require("./MailToken.model");
 
 class User extends Sequelize.Model {}
 
@@ -58,5 +59,10 @@ Comment.belongsTo(ToDo, {
   foreignKey: "todoId",
 });
 
+User.hasMany(MailToken);
+
+MailToken.belongsTo(User, {
+  foreignKey: "userId",
+});
 
 module.exports = User;

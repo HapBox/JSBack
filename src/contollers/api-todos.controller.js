@@ -103,7 +103,8 @@ async function getLink(req, res, next) {
     value: nanoid(128),
     todoId: req.params.id,
   });
-  let link = "localhost:3001/todo/" + req.params.id + "/" + token.value;
+  // можно и без id тудухи сделать
+  let link = "localhost:3001/todo/" + req.params.id + "/" + token.value; 
   res.status(200).json({ link });
 }
 
