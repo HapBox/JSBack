@@ -3,10 +3,10 @@ const express = require("express");
 const http = require("http");
 const cors = require("cors");
 const app = express();
-const todoRouter = require("./contollers/api-todos.controller");
-const authRouter = require("./contollers/api-auth.controller");
-const userRouter = require("./contollers/api-users.controller");
-const commentRouter = require("./contollers/api-comments.controller");
+const todoRouter = require("./controllers/api-todos.controller");
+const authRouter = require("./controllers/api-auth.controller");
+const userRouter = require("./controllers/api-users.controller");
+const commentRouter = require("./controllers/api-comments.controller");
 const { notFound, errorHandler } = require("./middlewares/middlewares");
 
 initDB();

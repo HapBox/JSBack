@@ -29,7 +29,7 @@ const requireToken = async (req, _res, next) => {
     },
   });
   if (!token) throw new ErrorResponse("Invalid token", 403);
-  //передача объекта токена в request
+  // передача объекта токена в request
   req.token = token;
   next();
 };

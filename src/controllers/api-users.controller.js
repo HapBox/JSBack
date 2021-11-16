@@ -2,11 +2,7 @@ const { Router } = require("express");
 const ErrorResponse = require("../classes/error-response");
 const MailToken = require("../dataBase/models/MailToken.model");
 const User = require("../dataBase/models/User.model");
-const {
-  asyncHandler,
-  requireToken,
-  errorHandler,
-} = require("../middlewares/middlewares");
+const { asyncHandler, requireToken } = require("../middlewares/middlewares");
 
 const router = new Router();
 

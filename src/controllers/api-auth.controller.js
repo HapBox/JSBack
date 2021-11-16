@@ -61,7 +61,6 @@ async function resetPass(req, res, next) {
     userId: data.id,
     value: nanoid(128),
   });
-  // let to = req.body.mail + ", " + req.body.mail;
   let text = "Your link to reset password: localhost:3001/user/" + token.value;
   await mailTransporter.sendMail({
     from: '"System ToDo" <matyashtodojs@gmail.com>',
